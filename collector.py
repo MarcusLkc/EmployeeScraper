@@ -70,7 +70,15 @@ class IdCollector(Scraper):
     """[summary]
 
     Arguments:
-        Scraper {[type]} -- [description]
+        Scraper (object) -- Inherits from the Scraper template class and makes
+                            use of the generate soup utility function
+        ids (list of ints) -- These are all the links IDs collected by the webscraper,
+                              we use these to generate dynamic urls
+        base_url (str) -- the starting url of our web scraper
+        ids_total (int) -- total amount of link ids to be collected
+        record_count (int) -- total amount of acquired records
+        page_count (int) -- total amount of pages to scrape for a department
+        ids_per_page -- links per page
 
     Returns:
         [type] -- [description]
@@ -87,9 +95,12 @@ class IdCollector(Scraper):
         self._calculate_site_records()
 
     def _calculate_site_records(self):
+        """function for intiating our webscraper class
+
+        """
+
         first_page_url = self.base_url + '1&'
         soup = self.generate_soup(first_page_url)
-        print('hey')
         result = soup.find('font', class_='large_bold')
         self.ids_total = int(result.text.split(' ')[-2])
         if self.page_count == None:
