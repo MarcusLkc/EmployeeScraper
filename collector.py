@@ -80,8 +80,6 @@ class IdCollector(Scraper):
         page_count (int) -- total amount of pages to scrape for a department
         ids_per_page -- links per page
 
-    Returns:
-        [type] -- [description]
     """
 
     def __init__(self, page_count=None):
@@ -95,7 +93,7 @@ class IdCollector(Scraper):
         self._calculate_site_records()
 
     def _calculate_site_records(self):
-        """function for intiating our webscraper class
+        """function for intiating our webscraper class with site statistics variables
 
         """
 
@@ -107,6 +105,13 @@ class IdCollector(Scraper):
             self.page_count = math.ceil(self.ids_total / self.ids_per_page)
 
     def collect_data(self):
+        """Collects all of the employee id links from websites pages and 
+        saves them in the ids list
+
+        Returns:
+        (list: ints) -- Returns the ids of our collected data within a list
+        """
+
         for i in range(self.page_count + 1):
             url = self.base_url + '{}&'.format(i)
             soup = self.generate_soup(url)
@@ -114,12 +119,21 @@ class IdCollector(Scraper):
             for data in results_set:
                 for link in data.find_all('a'):
                     self.ids.append(link.get('href')[-9::])
+        return self.ids
 
-    def save(self):
+    def save(self, filename=None):
+        """This function saves all of the link data we gathered from the web
+
+        Keyword Arguments:
+            filename (str) -- filename to save ids in if given otherwise will be saved as ids.txt (default: {None})
+
+        Returns:
+            (None) -- None
+        """
+
+        filename = filename or 'ids.txt'
         with open('ids.txt', 'w', encoding='utf-8') as f:
             json.dump(self.ids, f, ensure_ascii=False)
-
-        return True
 
     def __len__(self):
         return len(self.ids)
@@ -129,13 +143,35 @@ class IdCollector(Scraper):
 
 
 class EmployeeRecords(Scraper):
+    """This class is used to gather employee data from html pages
+    and save it to an excel file.
+
+    Arguments:
+        Scraper (Inherited) -- Scraper class that we inherited from for default methods
+
+    Attributes:
+        links (list: ints) -- employee links to search
+        employees (list: obj) -- A List of dictionary items that represent our Employees
+
+
+    """
+
     base_url = "https://appext20.dos.ny.gov/lcns_public/bus_name_inq_frm"
 
     def __init__(self, employee_links):
+
         self.links = employee_links
         self.employees = []
 
     def collect_data(self):
+        """Appends the links receiver to our base_url then visits 
+        every page to collect employee data
+
+
+        Returns:
+            (list: objects) -- Returns a list that contaisn all of our employee dict objects
+        """
+
         for link in self.links:
             query_string = {"p_record_id": link}
             soup = self.generate_soup(self.base_url, query_string)
@@ -144,6 +180,15 @@ class EmployeeRecords(Scraper):
         return self.employees
 
     def clean_data(self, soup):
+        """This function cleans and extracts the data from an individual employee html page
+
+        Arguments:
+            soup {object: BeautiFulSoup} -- A beautifulsoup parsed html object
+
+        Returns:
+            (list: str) -- List of strings from our table rows
+        """
+
         self.data = []
         for tr in soup.find_all('tr'):
             if "Services" in tr.text:
@@ -156,6 +201,16 @@ class EmployeeRecords(Scraper):
         return self.data
 
     def generate_employee(self, data):
+        """This function generates an employee objet by filtering our list elements and placing 
+        adjacent list items into our employee object
+
+        Arguments:
+            data {list: str} -- the string of keywords found on our html page
+
+        Returns:
+            (dict) -- returns employee as a dictionary of keywords
+        """
+
         dict_emp = {}
         i = 0
         l = len(data)
@@ -168,14 +223,29 @@ class EmployeeRecords(Scraper):
 
         return dict_emp
 
-    def save(self):
-        with pd.ExcelWriter('employees.xlsx') as writer:
+    def save(self, filename=None):
+        """Saves our employee objects to an excel file
+            Arguments:
+                filename (str) -- filename to save file in, filename must end in xlsx or other excel endings
+                                  Default -- employees.xlsx
+        """
+        filename = filename or 'employees.xlsx'
+        with pd.ExcelWriter(filename) as writer:
             df = pd.DataFrame(self.employees)
             df = df.fillna(0)
             df.to_excel(writer)
 
 
 def validate_date(date_text):
+    """Utility function to test if string is a data
+
+    Arguments:
+        date_text (string) -- text to consider as data
+
+    Returns:
+        (bool) -- Returns True if text is string is date False otherwise
+    """
+
     try:
         datetime.datetime.strptime(date_text, '%m/%d/%Y')
         return True
