@@ -82,10 +82,10 @@ class IdCollector(Scraper):
 
     """
 
-    def __init__(self, page_count=None):
+    def __init__(self, page_count=None, base_url=None):
 
         self.ids = []
-        self.base_url = "https://appext20.dos.ny.gov/lcns_public/roster_cursor?p_record_id=11000080984&p_display_start="
+        self.base_url = base_url or "https://appext20.dos.ny.gov/lcns_public/roster_cursor?p_record_id=11000080984&p_display_start="
         self.ids_total = None
         self.record_count = None
         self.page_count = page_count

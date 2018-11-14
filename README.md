@@ -32,6 +32,11 @@ If you would like to use a different department feel free
 to edit the base_url of the IdCollector class after initialization
 
 example:
-id_collector = IdCollector()
-id_collector.base_url = [your department base url]
-id_collector.collect_data()
+
+```python
+id_collector = IdCollector(base_url=[your_base_url])
+links = id_collector.collect_data()
+employee_records = EmployeeRecords(links)
+employee_records.collect_data()
+employee_records.save()
+```
