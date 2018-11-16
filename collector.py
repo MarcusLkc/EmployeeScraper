@@ -38,7 +38,7 @@ class Scraper(object):
     }
 
     def generate_soup(self, url, params=None):
-        """[summary]
+        """Utility class for grabbing requesting url and parsing html with beautifulsoup
 
         Arguments:
             url {str} -- url of website to get html data from
@@ -67,7 +67,9 @@ class Scraper(object):
 
 
 class IdCollector(Scraper):
-    """[summary]
+    """Collects all the Id links of different employees that can be used to
+    generate dynamic urls later
+
 
     Arguments:
         Scraper (object) -- Inherits from the Scraper template class and makes
@@ -237,7 +239,7 @@ class EmployeeRecords(Scraper):
 
 
 def validate_date(date_text):
-    """Utility function to test if string is a data
+    """Utility function to test if string is a date using the '%m/%d/%Y' Month/day/Year formula
 
     Arguments:
         date_text (string) -- text to consider as data
